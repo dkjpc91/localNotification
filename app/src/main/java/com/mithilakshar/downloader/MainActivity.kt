@@ -66,6 +66,19 @@ class MainActivity : AppCompatActivity() {
         // Start file download
         fileDownloader.downloadFile(fileUrl, fileName, "return")
 
+        val notificationHelper = NotificationHelper(this, R.drawable.ic_launcher_background)
+        val imageUrl = "https://i.pinimg.com/564x/44/ca/c9/44cac9ad222f947f6f128b6491c009a2.jpg"
+        val title = "Your Notification Title"
+        val message = "This is the notification message"
+        val activityToLaunch = MainActivity::class.java
+
+        binding.button.setOnClickListener {
+
+            notificationHelper.createNotificationWithImage(imageUrl, title, message, activityToLaunch)
+
+
+        }
+
 
 
 
