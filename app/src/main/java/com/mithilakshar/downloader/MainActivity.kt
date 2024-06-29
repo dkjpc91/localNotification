@@ -1,18 +1,19 @@
 package com.mithilakshar.downloader
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.ProgressBar
+
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.mithilakshar.downloader.Utility.AlarmHelper
 import com.mithilakshar.downloader.Utility.FileDownloaderProgress
 import com.mithilakshar.downloader.ViewModel.FileDownloadViewModel
 import com.mithilakshar.downloader.databinding.ActivityMainBinding
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         var toast: Toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
 
-
+        val alarmHelper = AlarmHelper(this)
 
 
         fileDownloader.getDownloadStatus().observe(this, { isSuccess ->
@@ -75,9 +76,15 @@ class MainActivity : AppCompatActivity() {
         binding.button.setOnClickListener {
 
             notificationHelper.createNotificationWithImage(imageUrl, title, message, activityToLaunch)
+            val calendar = Calendar.getInstance()
+            //calendar.set(Calendar.HOUR_OF_DAY, 10) // Set hour (e.g., 10 for 10 AM)
+            //calendar.set(Calendar.MINUTE, 30)
+            calendar.add(Calendar.MINUTE, 1)
+            alarmHelper.setAlarm(calendar =calendar, message = "Alarm triggered")
 
 
         }
+
 
 
 
