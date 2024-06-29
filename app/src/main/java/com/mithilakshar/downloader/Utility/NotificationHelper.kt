@@ -18,6 +18,7 @@ import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.mithilakshar.downloader.Utility.StopAlarmReceiver
 
 class NotificationHelper(private val context: Context, @DrawableRes private val defaultIcon: Int) { // Allow customization of default icon
 
@@ -29,6 +30,12 @@ class NotificationHelper(private val context: Context, @DrawableRes private val 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
         }
+    }
+
+    // Companion object to hold the mediaPlayer instance
+    companion object {
+        var mediaPlayer: MediaPlayer? = null
+        private const val NOTIFICATION_ID = 100
     }
 
     private fun createNotificationChannel() {
@@ -51,6 +58,10 @@ class NotificationHelper(private val context: Context, @DrawableRes private val 
         val intent = Intent(context, activity)
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
+        // PendingIntent for stop action
+        val stopIntent = Intent(context, StopAlarmReceiver  ::class.java)
+        stopIntent.action = "STOP_AUDIO_ACTION"
+        val stopPendingIntent = PendingIntent.getBroadcast(context, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE)
 
         Glide.with(context)
             .asBitmap()
@@ -67,17 +78,22 @@ class NotificationHelper(private val context: Context, @DrawableRes private val 
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true)
                         .setStyle(NotificationCompat.BigPictureStyle().bigPicture(resource))
+                        .addAction(R.drawable.baseline_close_24, "Stop Audio", stopPendingIntent)
                     builder.setSound(null)
 
                     notificationManager.notify(NOTIFICATION_ID, builder.build())
 
-                    val mediaPlayer = MediaPlayer()
-                    mediaPlayer.setDataSource(context, rawSoundUri)
-                    mediaPlayer.setOnCompletionListener {
-                        mediaPlayer.release() // Release the MediaPlayer after completion
+                    if (mediaPlayer == null) {
+                        mediaPlayer = MediaPlayer()
+                        mediaPlayer?.setDataSource(context, rawSoundUri)
+                        mediaPlayer?.setOnCompletionListener {
+                            mediaPlayer?.release() // Release the MediaPlayer after completion
+                            mediaPlayer = null // Set to null after release
+                        }
+                        mediaPlayer?.prepare()
+                        mediaPlayer?.start()
                     }
-                    mediaPlayer.prepare()
-                    mediaPlayer.start()
+
                 }
 
                 override fun onLoadFailed(errorDrawable: Drawable?) {
@@ -112,7 +128,5 @@ class NotificationHelper(private val context: Context, @DrawableRes private val 
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
-    companion object {
-        private const val NOTIFICATION_ID = 100
-    }
+
 }

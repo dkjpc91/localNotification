@@ -33,6 +33,12 @@
                 <action android:name="android.intent.action.ALARM" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".Utility.StopAlarmReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="STOP_AUDIO_ACTION" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
